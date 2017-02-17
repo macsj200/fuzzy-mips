@@ -67,7 +67,7 @@ with open(args['output_file'], 'w') as output_file:
         instr_name = random.choice(list(instruction_formats.keys()))
         label = None
         if random.getrandbits(1) or len(labels) == 0:
-            label = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(9))
+            label = ''.join(random.choice(string.ascii_uppercase) for _ in range(9))
             labels.append(label)
         imm = 0
         if 'valid_code' in args.keys():
