@@ -4,6 +4,7 @@ import random
 parser = argparse.ArgumentParser(description='Build MIPS source files for fuzz testing')
 parser.add_argument('-n','--num_lines', help='number of lines to output', required=True)
 parser.add_argument('-o','--output_file', help='output file', required=True)
+parser.add_argument('-v', '--valid_code', help='if true, produce valid code')
 
 args = vars(parser.parse_args())
 
@@ -63,5 +64,12 @@ class Instruction(object):
 with open(args['output_file'], 'w') as output_file:
     for line in range(int(args['num_lines'])):
         instr_name = random.choice(list(instruction_formats.keys()))
-        ins = Instruction(line, instr_name, rd=random.choice(valid_registers), rs=random.choice(valid_registers), rt=random.choice(valid_registers), imm=random.randint(-100,100), label=None, jump_label='test')
+        imm = 0
+        if 'valid_code' in args.keys():
+            if args['valid_code']:
+                if instr_name == 'addiu' or instr_name == 'lb' or instr_name == 'lbu' or instr_name == 'lw' or instr_name == 'sb' or instr_name == 'sw':
+                    imm = random.randint(-32768,32767)
+                elif instr_name == 'ori' or instr_name == 'xori' or instr_name == 'lui':
+                    imm = random.randint(0, 65535)
+        ins = Instruction(line, instr_name, rd=random.choice(valid_registers), rs=random.choice(valid_registers), rt=random.choice(valid_registers), imm=imm, label=None, jump_label='test')
         output_file.write(str(ins)+'\n')
