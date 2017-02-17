@@ -1,10 +1,10 @@
-lbu $s3, -61($sp)
-mflo $a3
-beq $zero, $v0, test
-lw $0, 23($s3)
-addu $t3, $sp, $a1
-mflo $s3
+L5DDPRMEM: neg $t0, $0
+BAJZ9I7OY: lb $t0, 0($a2)
+TX9C73YAP: jr $t2
+XLDUEO463: div $a3, $zero
+slt $s2, $ra, $s1
+addu $s2, $t3, $s3
 jr $a3
-addiu $sp, $a1, -79
-xori $a1, $t2, 72
-li $a1, 14
+SVF993YSD: mflo $a2
+3IIBQELM3: div $t0, $zero
+lw $s1, 0($zero)

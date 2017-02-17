@@ -1,6 +1,7 @@
 # Thanks to https://github.com/kmowery/mips-assembler/blob/master/instruction.py
 import argparse
 import random
+import string
 parser = argparse.ArgumentParser(description='Build MIPS source files for fuzz testing')
 parser.add_argument('-n','--num_lines', help='number of lines to output', required=True)
 parser.add_argument('-o','--output_file', help='output file', required=True)
@@ -40,7 +41,7 @@ instruction_formats = {
 }
 # $zero, $at, $v0, $a0 - $a3, $t0 - $t3, $s0 - $s3, $sp, and $ra. The name $0
 valid_registers = ['$zero', '$0', '$at', '$v0', '$a0', '$a1', '$a2', '$a3', '$t0', '$t1', '$t2', '$t3', '$s0', '$s1', '$s2', '$s3', '$sp', '$ra']
-
+labels = []
 class Instruction(object):
     def __init__(self, position, name, rd=None, rs=None, rt=None, imm=None, label=None, jump_label=None):
         self.position = position
@@ -64,6 +65,10 @@ class Instruction(object):
 with open(args['output_file'], 'w') as output_file:
     for line in range(int(args['num_lines'])):
         instr_name = random.choice(list(instruction_formats.keys()))
+        label = None
+        if random.getrandbits(1) or len(labels) == 0:
+            label = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(9))
+            labels.append(label)
         imm = 0
         if 'valid_code' in args.keys():
             if args['valid_code']:
@@ -71,5 +76,5 @@ with open(args['output_file'], 'w') as output_file:
                     imm = random.randint(-32768,32767)
                 elif instr_name == 'ori' or instr_name == 'xori' or instr_name == 'lui':
                     imm = random.randint(0, 65535)
-        ins = Instruction(line, instr_name, rd=random.choice(valid_registers), rs=random.choice(valid_registers), rt=random.choice(valid_registers), imm=imm, label=None, jump_label='test')
+        ins = Instruction(line, instr_name, rd=random.choice(valid_registers), rs=random.choice(valid_registers), rt=random.choice(valid_registers), imm=imm, label=label, jump_label=random.choice(labels))
         output_file.write(str(ins)+'\n')
