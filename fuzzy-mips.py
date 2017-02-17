@@ -8,27 +8,44 @@ parser.add_argument('-o','--output-file', help='output file', required=True)
 args = vars(parser.parse_args())
 
 
-r_type = {'sll': ['rd', 'rt'], 'jalr': ['rd', 'rs'], 'srav': ['rd', 'rt'], 'mthi': ['rs'], 'syscall': [], 'nor': ['rd', 'rs', 'rt'], 'slt': ['rd', 'rs', 'rt'], 'mflo': ['rd'], 'and': ['rd', 'rs', 'rt'], 'sltu': ['rd', 'rs', 'rt'], 'xor': ['rd', 'rs', 'rt'], 'srlv': ['rd', 'rt', 'rs'], 'or': ['rd', 'rs', 'rt'], 'break': [], 'divu': ['rs', 'rt'], 'sllv': ['rd', 'rt'], 'addu': ['rd', 'rs', 'rt'], 'subu': ['rd', 'rs', 'rt'], 'div': ['rd', 'rs', 'rt'], 'mult': ['rs', 'rt'], 'srl': ['rd', 'rt'], 'add': ['rd', 'rs', 'rt'], 'jr': ['rs'], 'mfhi': ['rd'], 'multu': ['rs', 'rt'], 'mtlo': ['rs'], 'sra': ['rd', 'rt'], 'sub': ['rd', 'rs', 'rt']}
-
-i_type = {'bltz': ['rs'], 'blez': ['rs'], 'bne': ['rs', 'rt'], 'xori': ['rt', 'rs'], 'sw': ['rt', 'rs'], 'lw': ['rt', 'rs'], 'sb': ['rt', 'rs'], 'swc1': ['rt', 'rs'], 'bgtz': ['rs'], 'lhu': ['rt', 'rs'], 'addiu': ['rt', 'rs'], 'lb': ['rt', 'rs'], 'lwc1': ['rt', 'rs'], 'andi': ['rt', 'rs'], 'sh': ['rt', 'rs'], 'lbu': ['rt', 'rs'], 'beq': ['rs', 'rt'], 'sc': ['rt', 'rs'], 'slti': ['rt', 'rs'], 'addi': ['rt', 'rs'], 'sltiu': ['rt', 'rs'], 'lui': ['rt'], 'ori': ['rt', 'rs'], 'lh': ['rt', 'rs'], 'bgez': ['rs']} 
-
-j_type = {'j':[],'jal':[]}
-
-pseudo_type = {'li':['rt'],'neg':['rt','rs'],'mfhilo':['rs','rt'],'pi':['rs','rt','rd']}
-
-all_type = {}
-
-all_type.update(r_type)
-all_type.update(i_type)
-all_type.update(j_type)
-all_type.update(pseudo_type)
+instruction_formats = {
+        'addu': '$rd, $rs, $rt',
+        'or': '$rd, $rs, $rt',
+        'xor': '$rd, $rs, $rt',
+        'slt': '$rd, $rs, $rt',
+        'sltu': '$rd, $rs, $rt',
+        'jr': '$rs',
+        'sll': '$rd, $rt, imm',
+        'addiu': '$rt, $rs, imm',
+        'ori': '$rt, $rs, imm',
+        'xori': '$rt, $rs, imm',
+        'lui': '$rt, imm',
+        'lb': '$rt, imm($rs)',
+        'lbu': '$rt, imm($rs)',
+        'lw': '$rt, imm($rs)',
+        'sb': '$rt, imm($rs)',
+        'sw': '$rt, imm($rs)',
+        'beq': '$rs, $rt, label',
+        'bne': '$rs, $rt, label',
+        'j':'label',
+        'jal':'label',
+        'mult':'$rs, $rt',
+        'div': '$rs, $rt',
+        'mfhi': '$rd',
+        'mflo': '$rd',
+        'li': '$rt, imm',
+        'neg': '$rt, $rs',
+        'mfhilo': '$rs, $rt',
+        'pi': '$rs, $rt, $rd'
+}
 class Instruction(object):
-    def __init__(self, position, name, rd, rs, rt, imm, label):
+    def __init__(self, position, name, rd=None, rs=None, rt=None, imm=None, label=None, jump_label=None):
         self.position = position
         self.name = name
         self.registers = registers
         self.imm = imm
         self.label = label
+        self.jump_label = jump_label
         self.rd = rd
         self.rs = rs
         self.rt = rt
@@ -36,4 +53,18 @@ class Instruction(object):
         val = ""
         if self.label:
             val += label + ": "
-        for 
+        val += self.name
+        args_template = instruction_formats[self.name]
+        if self.rd:
+            args_template.replace('$rd', self.rd)
+        if self.rs:
+            args_template.replace('$rs', self.rs)
+        if self.rt:
+            args_template.replace('$rt', self.rt)
+        if self.imm:
+            args_template.replace('$imm', self.imm)
+        if self.jump_label:
+            args_template.replace('label',self.jump_label)
+        val += args_template
+        return val
+
